@@ -1,72 +1,69 @@
 #include "binary_trees.h"
 
 /**
- * _realloc - Reallocates a memory block
- * @ptr: The pointer to the previous memory block
- * @old_size: The size of the old memory block
- * @new_size: The size of the new memory block
- *
- * Return: The pointer to the new memory block otherwise NULL
+ * mem_realloc - adjusts memory allocation
+ * @prevmem: pointer to the existing memory block
+ * @oldmemsz: size of the original memory block
+ * @newmemsz: size of the desired memory block
+ * Return: void
  */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
+void *mem_realloc(void *prevmem, unsigned int oldmemsz, unsigned int newmemsz)
 {
-	void *new_ptr;
-	unsigned int min_size = old_size < new_size ? old_size : new_size;
-	unsigned int i;
+	void *newmem;
+	unsigned int idx;
+	unsigned int minsz = oldmemsz < newmemsz ? oldmemsz : newmemsz;
 
-	if (new_size == old_size)
-		return (ptr);
-	if (ptr != NULL)
+	if (newmemsz == oldmemsz)
+		return (prevmem);
+	if (prevmem)
 	{
-		if (new_size == 0)
+		if (newmemsz == 0)
 		{
-			free(ptr);
+			free(prevmem);
 			return (NULL);
 		}
-		new_ptr = malloc(new_size);
-		if (new_ptr != NULL)
+		newmem = malloc(newmemsz);
+		if (newmem)
 		{
-			for (i = 0; i < min_size; i++)
-				*((char *)new_ptr + i) = *((char *)ptr + i);
-			free(ptr);
-			return (new_ptr);
+			for (idx = 0 ; idx < minsz ; idx++)
+				*((char *)newmem + idx) = *((char *)prevmem + idx);
+			free(prevmem);
+			return (newmem);
 		}
-		free(ptr);
+		free(prevmem);
 		return (NULL);
 	}
 	else
 	{
-		new_ptr = malloc(new_size);
-		return (new_ptr);
+		newmem = malloc(newmemsz);
+		return (newmem);
 	}
 }
 
 /**
- * heap_to_sorted_array - Creates a sorted array from a max binary heap tree.
- * @heap: A pointer to the max binary heap.
- * @size: A pointer to the resulting array's size value.
- *
- * Return: A pointer to the array, otherwise NULL.
+ * heap_to_sorted_array - converts a Binary Max Heap to a sorted array of ints
+ * @heap: pointer to the root node of the heap to convert
+ * @size: address to store the size of the array
+ * Return: pointer to sorted array in descending order
  */
 int *heap_to_sorted_array(heap_t *heap, size_t *size)
 {
-	int *array = NULL;
-	heap_t *root;
-	int val;
-	size_t n = 0;
+	int *arr = NULL, extval;
+	heap_t *currnd;
+	size_t arrsz = 0;
 
-	if (heap != NULL)
+	if (heap)
 	{
-		root = heap;
-		while (root != NULL)
+		currnd = heap;
+		while (currnd)
 		{
-			val = heap_extract(&root);
-			array = _realloc(array, sizeof(int) * n, sizeof(int) * (n + 1));
-			*(array + n) = val;
-			n++;
+			extval = heap_extract(&currnd);
+			arr = mem_realloc(arr, sizeof(int) * arrsz, sizeof(int) * (arrsz + 1));
+			*(arr + arrsz) = extval;
+			arrsz++;
 		}
 	}
-	if (size != NULL)
-		*size = n;
-	return (array);
+	if (size)
+		*size = arrsz;
+	return (arr);
 }
