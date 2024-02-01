@@ -1,52 +1,51 @@
 #include "binary_trees.h"
 
-void sata_helper(avl_t **root, int *array, size_t lo, size_t hi);
-
 /**
- * sorted_array_to_avl - builds an AVL tree from an array
- * @array: a pointer to the first element of the array to be converted
- * @size: number of elements in the array
- *
- * Return: a pointer to the root node of the created AVL tree
- *         NULL on failure
+ * avl_sorted_build - constructs an AVL tree from an array
+ * @root: double pointer to the root node of the subtree
+ * @array: pointer to the array element to be changed
+ * @minidx: minimum index
+ * @maxidx: maximum index
+ * Return: void
  */
-avl_t *sorted_array_to_avl(int *array, size_t size)
+void avl_sorted_build(avl_t **root, int *array, size_t minidx, size_t maxidx)
 {
-	avl_t *tree = NULL;
-	size_t middle;
+	avl_t *nnode = NULL;
+	size_t mididx;
 
-	if (!array)
-		return (NULL);
-	middle = (size - 1) / 2;
-	tree = binary_tree_node(NULL, array[middle]);
-
-	sata_helper(&tree, array, -1, middle);
-	sata_helper(&tree, array, middle, size);
-
-	return (tree);
+	if (maxidx - minidx > 1)
+	{
+		mididx = (maxidx - minidx) / 2 + minidx;
+		nnode = binary_tree_node(*root, array[mididx]);
+		if (array[mididx] > (*root)->n)
+		{
+			(*root)->right = nnode;
+		}
+		else if (array[mididx] < (*root)->n)
+		{
+			(*root)->left = nnode;
+		}
+		avl_sorted_build(&nnode, array, minidx, mididx);
+		avl_sorted_build(&nnode, array, mididx, maxidx);
+	}
 }
 
 /**
- * sata_helper - helper that builds an AVL tree from an array
- * @root: double pointer to the root node of the subtree
- * @array: a pointer to the first element of the array to be converted
- * @lo: lower bound index
- * @hi: upper bound index
+ * sorted_array_to_avl - builds an AVL tree from an array
+ * @array: pointer to the first element of the array to be converted
+ * @size: number of element in the array
+ * Return: pointer to the root node of the created AVL tree, or NULL on failure
  */
-void sata_helper(avl_t **root, int *array, size_t lo, size_t hi)
+avl_t *sorted_array_to_avl(int *array, size_t size)
 {
-	avl_t *new = NULL;
-	size_t middle;
+	avl_t *avltree = NULL;
+	size_t mididx;
 
-	if (hi - lo > 1)
-	{
-		middle = (hi - lo) / 2 + lo;
-		new = binary_tree_node(*root, array[middle]);
-		if (array[middle] > (*root)->n)
-			(*root)->right = new;
-		else if (array[middle] < (*root)->n)
-			(*root)->left = new;
-		sata_helper(&new, array, lo, middle);
-		sata_helper(&new, array, middle, hi);
-	}
+	if (!array)
+		return (NULL);
+	mididx = (size - 1) / 2;
+	avltree = binary_tree_node(NULL, array[mididx]);
+	avl_sorted_build(&avltree, array, -1, mididx);
+	avl_sorted_build(&avltree, array, mididx, size);
+	return (avltree);
 }
